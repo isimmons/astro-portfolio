@@ -2,19 +2,13 @@
 import Link from "~/components/ui/Link.astro";
 import Heading from "~/components/ui/Heading.astro";
 import { Image } from "astro:assets";
-import katie from "~/assets/avatar.jpg";
+import me from "~/assets/me-cartoon.jpg";
 ---
 
-<header aria-label="Introduction to Katie" class="hero-home">
-  <Image
-    src={katie}
-    alt="Katie Haus"
-    width={200}
-    class="avatar"
-    format="avif"
-  />
-  <Heading tagName="h1" size="h2">👋 Hi, I'm Katie</Heading>
-  <p>I'm a self-taught designer and developer obsessed with quality.</p>
+<header aria-label="Introduction to Ian" class="hero-home">
+  <Image src={me} alt="Ian Simmons" width={200} class="avatar" format="avif" />
+  <Heading tagName="h1" size="h2">👋 Hi, I'm Ian</Heading>
+  <p>I'm a self-taught designer and developer who's excellend at copy/paste.</p>
   <div>
     <Link href="#" variant="secondary">Download CV</Link>
     <Link href="#contact">Let's Connect</Link>
