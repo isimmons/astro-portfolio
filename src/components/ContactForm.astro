@@ -1,0 +1,216 @@
+---
+import { Image } from "astro:assets";
+import avatar from "~/assets/avatar.jpg";
+import Heading from "./ui/Heading.astro";
+import { action } from "~/utils/server";
+
+type Foo = { errors: Array<{ field: string; message: string }> };
+type Bar = { data: { id: string; name: string; email: string } };
+type DataReturn = Foo | Bar | undefined;
+
+const { data, response } = await action(
+  Astro,
+  async (): Promise<DataReturn> => {
+    const errorMessages: { field: string; message: string }[] = [];
+
+    const updateMessage = (
+      field: "name" | "email" | "form",
+      message: string
+    ) => {
+      errorMessages.push({ field, message });
+    };
+
+    const data = await Astro.request.formData();
+    const { name, email } = Object.fromEntries(data);
+
+    if (!name || typeof name !== "string" || name.length < 1) {
+      updateMessage("name", "Please enter a valid name");
+    }
+
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      updateMessage("email", "Please enter a valid email");
+    }
+    // replace with real validation
+    if (errorMessages.length > 0) return { errors: errorMessages };
+
+    try {
+      const res = await fetch("http://localhost:3000/contacts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email }),
+      });
+
+      if (!res.ok) throw new Error("Response was not OK");
+
+      const response = await res.json();
+
+      return { data: response };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+        updateMessage("form", error.message);
+      }
+      updateMessage("form", "Something went wrong. Please try again later");
+    }
+  }
+);
+
+if (response) return response;
+
+console.log("Data: ", data);
+console.log(response);
+
+// const errorMessages: { field: string; message: string }[] = [];
+// let successMessage = null;
+
+// if (Astro.request.method === "POST") {
+//   const updateMessage = (field: "name" | "email" | "form", message: string) => {
+//     errorMessages.push({ field, message });
+//   };
+
+//   const data = await Astro.request.formData();
+//   const { name, email } = Object.fromEntries(data);
+
+//   if (!name || typeof name !== "string" || name.length < 1) {
+//     updateMessage("name", "Please enter a valid name");
+//   }
+
+//   if (!email || typeof email !== "string" || !email.includes("@")) {
+//     updateMessage("email", "Please enter a valid email");
+//   }
+
+//   if (errorMessages.length < 1) {
+//     try {
+//       const res = await fetch("http://localhost:3000/contacts", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ name, email }),
+//       });
+
+//       if (!res.ok) throw new Error("Response was not OK");
+
+//       successMessage = "Thanks! I'll be in touch soon!";
+
+//     } catch (error) {
+//       if (error instanceof Error) {
+//         console.log(error.message);
+//         updateMessage("form", error.message);
+//       }
+//       updateMessage("form", "Something went wrong. Please try again later");
+//     }
+//   }
+// }
+---
+
+<section aria-label="Contact Form" class="relative">
+  <div data-pattern></div>
+  <div class="form-wrapper">
+    <Image
+      src={avatar}
+      alt="Katie Haus"
+      class="headshot"
+      width={700}
+      format="avif"
+    />
+    <form id="contact-form" method="POST" novalidate>
+      <Heading tagName="h2" size="h2">Let's Connect!</Heading>
+      <p>Reach out below for inquireies, quotes, or collaborations.</p>
+      <div class="input-wrapper">
+        <label for="name">Your Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          required
+          placeholder="e.g., Ian Simmons"
+        />
+      </div>
+      <div class="input-wrapper">
+        <label for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          placeholder="e.g., ismmons33@gmail.com"
+        />
+      </div>
+      <button type="submit" class="btn primary">Contact Me</button>
+      {
+        data && "errors" in data
+          ? data.errors.map((error) => (
+              <p class="message error">{error.message}</p>
+            ))
+          : null
+      }
+      <!-- {successMessage && <p class="message success">{successMessage}</p>} -->
+      <p class="message"></p>
+    </form>
+  </div>
+</section>
+
+<script>
+  // const contactForm = document.querySelector(
+  //   "#contact-form"
+  // ) as HTMLFormElement;
+
+  // contactForm.noValidate = true; // js takover
+
+  // const messageElement = document.querySelector<HTMLParagraphElement>(
+  //   ".message"
+  // ) as HTMLParagraphElement;
+
+  // const updateMessage = (message: string, type: "error" | "success") => {
+  //   messageElement.classList.add(type);
+  //   messageElement.textContent = message;
+  //   setTimeout(() => {
+  //     messageElement.textContent = "";
+  //     messageElement.classList.remove(type);
+  //   }, 3000);
+  // };
+
+  // contactForm.addEventListener("submit", async (event) => {
+  //   event.preventDefault();
+  //   const formData = new FormData(contactForm);
+  //   const { name, email } = Object.fromEntries(formData);
+
+  //   // Note: validate with zod in tha foreals but...
+  //   if (!name || typeof name !== "string" || name.length < 1)
+  //     return updateMessage("Please enter a valid name", "error");
+
+  //   if (!email || typeof email !== "string" || !email.includes("@"))
+  //     return updateMessage("Please enter a valid email", "error");
+
+  //   try {
+  //     const res = await fetch("http://localhost:3000/contacts", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ name, email }),
+  //     });
+
+  //     if (!res.ok) throw new Error("Response was not OK");
+
+  //     contactForm.reset();
+
+  //     return updateMessage(
+  //       "Thanks for reaching out. I'll be in touch soon.",
+  //       "success"
+  //     );
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       console.log(error.message);
+  //       return updateMessage(error.message, "error");
+  //     }
+  //     return updateMessage(
+  //       "Something went wrong. Please try again later",
+  //       "error"
+  //     );
+  //   }
+  // });
+</script>
