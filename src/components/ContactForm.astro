@@ -1,12 +1,14 @@
 ---
+import contactFormSchema from "~/schemas/contactFormSchema";
 import { Image } from "astro:assets";
 import avatar from "~/assets/avatar.jpg";
 import Heading from "./ui/Heading.astro";
 import { action } from "~/utils/server";
 
-type Foo = { errors: Array<{ field: string; message: string }> };
-type Bar = { data: { id: string; name: string; email: string } };
-type DataReturn = Foo | Bar | undefined;
+type DataReturn =
+  | { errors: Array<{ field: string; message: string }> }
+  | { data: { id: string; name: string; email: string } }
+  | undefined;
 
 const { data, response } = await action(
   Astro,
@@ -21,16 +23,20 @@ const { data, response } = await action(
     };
 
     const data = await Astro.request.formData();
+
     const { name, email } = Object.fromEntries(data);
 
-    if (!name || typeof name !== "string" || name.length < 1) {
-      updateMessage("name", "Please enter a valid name");
+    const validation = contactFormSchema.safeParse({ name, email });
+    if (!validation.success) {
+      const errors = validation.error.errors;
+      for (let e in errors) {
+        updateMessage(
+          errors[e].path[0] as "name" | "email" | "form",
+          errors[e].message
+        );
+      }
     }
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      updateMessage("email", "Please enter a valid email");
-    }
-    // replace with real validation
     if (errorMessages.length > 0) return { errors: errorMessages };
 
     try {
@@ -57,53 +63,10 @@ const { data, response } = await action(
   }
 );
 
-if (response) return response;
-
-console.log("Data: ", data);
-console.log(response);
-
-// const errorMessages: { field: string; message: string }[] = [];
-// let successMessage = null;
-
-// if (Astro.request.method === "POST") {
-//   const updateMessage = (field: "name" | "email" | "form", message: string) => {
-//     errorMessages.push({ field, message });
-//   };
-
-//   const data = await Astro.request.formData();
-//   const { name, email } = Object.fromEntries(data);
-
-//   if (!name || typeof name !== "string" || name.length < 1) {
-//     updateMessage("name", "Please enter a valid name");
-//   }
-
-//   if (!email || typeof email !== "string" || !email.includes("@")) {
-//     updateMessage("email", "Please enter a valid email");
-//   }
-
-//   if (errorMessages.length < 1) {
-//     try {
-//       const res = await fetch("http://localhost:3000/contacts", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({ name, email }),
-//       });
-
-//       if (!res.ok) throw new Error("Response was not OK");
-
-//       successMessage = "Thanks! I'll be in touch soon!";
-
-//     } catch (error) {
-//       if (error instanceof Error) {
-//         console.log(error.message);
-//         updateMessage("form", error.message);
-//       }
-//       updateMessage("form", "Something went wrong. Please try again later");
-//     }
-//   }
-// }
+if (response) {
+  console.log("got response");
+  return response;
+}
 ---
 
 <section aria-label="Contact Form" class="relative">

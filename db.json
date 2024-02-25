@@ -1,3 +1,14 @@
 {
-  "contacts": []
+  "contacts": [
+    {
+      "id": "a8a2",
+      "name": "foo",
+      "email": "foo@foomail.com"
+    },
+    {
+      "id": "ef66",
+      "name": "ian",
+      "email": "foo@foobar.com"
+    }
+  ]
 }
