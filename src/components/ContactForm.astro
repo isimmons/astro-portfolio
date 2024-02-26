@@ -110,7 +110,12 @@ if (response) {
             ))
           : null
       }
-      <!-- {successMessage && <p class="message success">{successMessage}</p>} -->
+      {
+        data && "data" in data ? (
+          <p class="message success">Thanks, We'll be in touch!</p>
+        ) : null
+      }
+
       <p class="message"></p>
     </form>
   </div>
