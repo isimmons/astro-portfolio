@@ -1,0 +1,25 @@
+---
+import { Image } from "astro:assets";
+import Link from "@components/ui/Link.astro";
+import Heading from "@components/ui/Heading.astro";
+import avatar from "~/assets/avatar.jpg";
+---
+
+<header aria-label="Introduction to Ian" class="hero-home">
+  <Image
+    src={avatar}
+    alt="Ian Simmons"
+    width={200}
+    class="avatar"
+    format="avif"
+  />
+  <Heading tagName="h1" size="h2">Are you lost?</Heading>
+  <p>
+    Oops! The page you are looking for seems to have wandered off. Please try
+    again or visit our homepage for more information.
+  </p>
+  <div>
+    <Link href="#" variant="secondary">Download CV</Link>
+    <Link href="/">Go Home</Link>
+  </div>
+</header>
