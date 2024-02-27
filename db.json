@@ -1,19 +1,14 @@
 {
   "contacts": [
     {
-      "id": "a8a2",
+      "id": "fa66",
       "name": "foo",
       "email": "foo@foomail.com"
     },
     {
-      "id": "ef66",
-      "name": "ian",
-      "email": "foo@foobar.com"
-    },
-    {
-      "id": "37f1",
-      "name": "ian",
-      "email": "isimmons33@gmail.com"
+      "id": "4d93",
+      "name": "foo",
+      "email": "foobius@foobar.com"
     }
   ]
 }
